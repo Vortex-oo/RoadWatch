@@ -1,33 +1,20 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { LoginPage, RegisterPage, ForgotPasswordPage } from './features/auth';
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-export default function App() {
-  return (
-    <BrowserRouter>
-      <Routes>
-        {/* Temporary redirect to force the app to open the login page first */}
-        <Route path="/" element={<Navigate to="/login" replace />} />
+// Existing authentication pages
+import {
+    LoginPage,
+    RegisterPage,
+    ForgotPasswordPage,
+} from "./features/auth";
 
-        {/* Your new Auth pages */}
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-      </Routes>
-    </BrowserRouter>
-  );
-}
-
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-
+// Existing public pages
 import Navbar from "./component/Navbar";
-
 import HomePage from "./pages/HomePage";
 import MapPage from "./pages/MapPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import ReportDetailPage from "./pages/ReportDetailPage";
-import LoginPage from "./pages/LoginPage";
 
-// Admin and Verifier imports
+// Admin and Verifier pages
 import { AdminLayout, RequireRole } from "./admin/AdminApp";
 
 import {
@@ -39,19 +26,24 @@ import {
     Analytics,
 } from "./admin/AdminPages";
 
+
 export default function App() {
     return (
         <BrowserRouter>
             <Navbar />
 
             <Routes>
-                <Route path="/login" element={<LoginPage />} />
-                {/* Existing user pages */}
+                {/* Public pages */}
                 <Route path="/" element={<HomePage />} />
                 <Route path="/map" element={<MapPage />} />
                 <Route path="/reports/:id" element={<ReportDetailPage />} />
 
-                {/* Admin and Verifier pages */}
+                {/* Authentication pages */}
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterPage />} />
+                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+
+                {/* Admin and Verifier */}
                 <Route
                     element={
                         <RequireRole allowedRoles={["admin", "verifier"]} />
@@ -63,7 +55,7 @@ export default function App() {
                         <Route path="reports/:id" element={<ReportReview />} />
                         <Route path="verify" element={<VerifierQueue />} />
 
-                        {/* Admin-only pages */}
+                        {/* Admin only */}
                         <Route
                             element={<RequireRole allowedRoles={["admin"]} />}
                         >
@@ -73,7 +65,7 @@ export default function App() {
                     </Route>
                 </Route>
 
-                {/* 404 page */}
+                {/* 404 */}
                 <Route path="*" element={<NotFoundPage />} />
             </Routes>
         </BrowserRouter>
