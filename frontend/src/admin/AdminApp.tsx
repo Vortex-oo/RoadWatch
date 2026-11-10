@@ -52,7 +52,7 @@ export function AdminLayout() {
             <ShieldCheck size={22} />
           </span>
           <span>
-            <strong className="block font-bold tracking-tight text-white">PotholeWatch</strong>
+            <strong className="block font-bold tracking-tight text-white">RoadWatch</strong>
             <small className="text-xs text-slate-400">Operations console</small>
           </span>
         </div>
