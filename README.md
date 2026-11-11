@@ -116,20 +116,17 @@ Many civic apps combine photos and a map. RoadWatch stands out through how it ha
 
 ## System architecture
 
-```
-Phone / Browser (React + Vite + Tailwind)
-   photo, GPS, draggable pin, map, admin dashboard
-        |  HTTPS (REST + JSON)
-        v
-Node.js + Express API (TypeScript)
-   auth, validation, duplicate check, priority score
-        |                  |                 |
-        |                  |                 +--> Python AI service (FastAPI + ONNX + OpenCV)
-        |                  |                      quality check, damage classification
-        |                  +--> Cloudinary (photos)
-        v
-MongoDB Atlas (users, reports, confirmations)
-```
+### Architecture
+
+![RoadWatch system architecture](docs/images/architecture.png)
+
+*The browser talks only to the Node backend. The backend calls the AI service, Cloudinary, and MongoDB.*
+
+### Workflow
+
+![RoadWatch report workflow](docs/images/workflow.png)
+
+*From photo to repair. The marker colors match the map: red = reported, yellow = verified, orange = in progress, green = repaired.*
 
 **How a report flows through the system**
 
@@ -171,6 +168,8 @@ RoadWatch/
 ├── docs/              Decisions log, API notes, report material, diagrams
 └── README.md
 ```
+
+The diagrams in this README live in `docs/images/` (`architecture.png` and `workflow.png`).
 
 ---
 
