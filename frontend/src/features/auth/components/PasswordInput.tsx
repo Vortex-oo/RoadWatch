@@ -16,7 +16,7 @@ export const PasswordInput = React.forwardRef<HTMLInputElement, InputProps>(
         <button
           type="button"
           onClick={() => setShow(!show)}
-          className="absolute right-4 top-[40px] font-bold text-slate-500 hover:text-black transition-colors"
+          className="absolute right-4 top-[40px] text-slate-500 hover:text-black transition-colors font-hand text-lg"
         >
           {show ? 'Hide' : 'Show'}
         </button>

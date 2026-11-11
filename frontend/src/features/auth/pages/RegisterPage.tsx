@@ -21,19 +21,19 @@ export const RegisterPage = () => {
           <PasswordInput label="Password" placeholder="Create a strong password" />
           
           {role === 'verifier' && (
-            <div className="bg-[#93C5FD] border-[3px] border-black rounded-lg p-3 mb-4 text-sm font-bold text-black">
+            <div className="bg-[#93C5FD] border-[3px] border-black rounded-lg p-3 mb-4 text-xl text-black font-hand">
               Note: Verifier accounts require approval from a municipality admin.
             </div>
           )}
 
-          <button className="w-full mt-2 py-3 bg-[#FDE047] border-[3px] border-black rounded-xl font-bold text-lg text-black hover:-translate-y-1 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all">
+          <button className="w-full mt-2 py-3 bg-[#FDE047] border-[3px] border-black rounded-xl text-2xl text-black hover:-translate-y-1 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all font-hand">
             Register
           </button>
         </form>
 
-        <p className="mt-6 text-center font-bold text-black">
+        <p className="mt-6 text-center text-black font-hand text-xl">
           Already have an account?{' '}
-          <Link to="/login" className="text-blue-600 hover:underline decoration-2">
+          <Link to="/login" className="text-blue-600 hover:text-blue-800">
             Log in
           </Link>
         </p>
