@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { getReports } from "../api/reportsApi";
-import FiltersPanel from "../component/FiltersPanel";
-import ReportMap from "../component/ReportMap";
+import FiltersPanel from "../components/FiltersPanel";
+import ReportMap from "../components/ReportMap";
 import type { Report, ReportFilters } from "../types/report";
 import { filterReports } from "../utils/filterReports";
 

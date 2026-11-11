@@ -1,6 +1,6 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { LoginPage, RegisterPage, ForgotPasswordPage } from "./features/auth";
-import Navbar from "./component/Navbar";
+import Navbar from "./components/Navbar";
 import HomePage from "./pages/HomePage";
 import MapPage from "./pages/MapPage";
 import NotFoundPage from "./pages/NotFoundPage";

@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { getReportById } from "../api/reportsApi";
-import PhotoBox from "../component/PhotoBox";
-import StatusBadge from "../component/StatusBadge";
-import StatusTimeline from "../component/StatusTimeline";
+import PhotoBox from "../components/PhotoBox";
+import StatusBadge from "../components/StatusBadge";
+import StatusTimeline from "../components/StatusTimeline";
 import type { Report } from "../types/report";
 import { formatDate } from "../utils/formatDate";
 import { severityLabels } from "../utils/statusInfo";
