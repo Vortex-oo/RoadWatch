@@ -1,14 +1,10 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-
-// --- FRIEND'S COMPONENTS ---
+import { LoginPage, RegisterPage, ForgotPasswordPage } from "./features/auth";
 import Navbar from "./component/Navbar";
 import HomePage from "./pages/HomePage";
 import MapPage from "./pages/MapPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import ReportDetailPage from "./pages/ReportDetailPage";
-
-import { LoginPage, RegisterPage, ForgotPasswordPage } from "./features/auth";
-
 import { AdminLayout, RequireRole } from "./admin/AdminApp";
 import {
     AdminDashboard,
@@ -33,20 +29,14 @@ export default function App() {
                 <Route path="/map" element={<MapPage />} />
                 <Route path="/reports/:id" element={<ReportDetailPage />} />
 
-                <Route
-                    element={
-                        <RequireRole allowedRoles={["admin", "verifier"]} />
-                    }
-                >
+                <Route element={<RequireRole allowedRoles={["admin", "verifier"]} />}>
                     <Route path="/admin" element={<AdminLayout />}>
                         <Route index element={<AdminDashboard />} />
                         <Route path="reports" element={<ReportsTable />} />
                         <Route path="reports/:id" element={<ReportReview />} />
                         <Route path="verify" element={<VerifierQueue />} />
 
-                        <Route
-                            element={<RequireRole allowedRoles={["admin"]} />}
-                        >
+                        <Route element={<RequireRole allowedRoles={["admin"]} />}>
                             <Route path="users" element={<UserManagement />} />
                             <Route path="analytics" element={<Analytics />} />
                         </Route>
