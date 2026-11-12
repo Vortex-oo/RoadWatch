@@ -3,7 +3,6 @@ import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 
 const DEFAULT_CENTER = { lat: 22.5726, lng: 88.3639 };
 
-// Small component to let the user click the map to move the pin
 const LocationMarker = ({ position, setPosition }: any) => {
   useMapEvents({
     click(e) {
@@ -20,21 +19,21 @@ export const ReportForm = ({
 }: {
   onSubmit: (payload: {
     description: string;
-    photo: string;
+    photo: File | string;
     latitude: number;
     longitude: number;
     severity: 'low' | 'medium' | 'high';
   }) => void;
   value: {
     description: string;
-    photo: string;
+    photo: File | string;
     latitude: number;
     longitude: number;
     severity: 'low' | 'medium' | 'high';
   };
   onChange: (next: {
     description: string;
-    photo: string;
+    photo: File | string;
     latitude: number;
     longitude: number;
     severity: 'low' | 'medium' | 'high';
@@ -43,7 +42,6 @@ export const ReportForm = ({
   const [position, setPosition] = useState<any>(null);
   const [hasPhoto, setHasPhoto] = useState(false);
 
-  // Auto-fetch GPS on component load
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -87,8 +85,9 @@ export const ReportForm = ({
       <div className="flex flex-col gap-2">
         <label className="text-xl font-bold text-black">1. Take a photo of the damage</label>
         <div className="sketch w-full h-40 bg-[#e9ecef] border-dashed flex flex-col items-center justify-center relative cursor-pointer hover:bg-gray-200">
-          <span className="text-xl text-gray-600">Tap to open camera</span>
-          {/* Hidden file input stretching over the box */}
+          <span className="text-xl text-gray-600">
+            {value.photo instanceof File ? value.photo.name : "Tap to open camera"}
+          </span>
           <input 
             type="file" 
             accept="image/*" 
@@ -96,14 +95,13 @@ export const ReportForm = ({
             className="absolute inset-0 opacity-0 cursor-pointer"
             onChange={(e) => {
               const file = e.target.files?.[0];
-              const photo = file ? URL.createObjectURL(file) : '';
               setHasPhoto(!!file);
-              onChange({ ...value, photo });
+              // We now pass the actual binary file to the state
+              onChange({ ...value, photo: file || '' });
             }}
           />
         </div>
         
-        {/* Mock AI Check Result - only shows if photo is "uploaded" */}
         {hasPhoto && (
           <div className="sketch w-full p-3 bg-[#b2f2bb] mt-2 flex items-center justify-between">
             <span className="text-lg text-black font-bold">AI Check: Pothole likely</span>
@@ -156,7 +154,6 @@ export const ReportForm = ({
         ></textarea>
       </div>
 
-      {/* Submit Action */}
       <button
         onClick={(e) => {
           e.preventDefault();

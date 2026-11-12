@@ -1,14 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-// Removed the ReportPayload import since ReportForm doesn't export it anymore
 import { ReportForm } from '../components/ReportForm';
 import { DuplicateModal } from '../components/DuplicateModal';
 import { createReport } from '../../../api/reportsApi';
 
-// 1. We define the type right here to match your ReportForm exactly
 interface ReportPayload {
     description: string;
-    photo: string;
+    photo: File | string;
     latitude: number;
     longitude: number;
     severity: 'low' | 'medium' | 'high';
@@ -35,7 +33,8 @@ export const CreateReportPage = () => {
             return;
         }
 
-        if (!payload.photo) {
+        // We block submission if the photo is still a string (empty)
+        if (!payload.photo || typeof payload.photo === 'string') {
             setError('A photo of the damage is required.');
             return;
         }
@@ -46,7 +45,7 @@ export const CreateReportPage = () => {
 
             await createReport({
                 description: payload.description,
-                photo: payload.photo as any,
+                photo: payload.photo as File, // Now safely guaranteed to be a File
                 latitude: payload.latitude,
                 longitude: payload.longitude,
                 severity: payload.severity,
