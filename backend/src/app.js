@@ -1,5 +1,5 @@
-
-require("dotenv").config();
+const path = require("path");
+require("dotenv").config({ path: path.resolve(__dirname, ".env") });
 
 const express = require("express");
 const cors = require("cors");
@@ -27,7 +27,7 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
 // MongoDB connection
 const MONGO_URI =
-    process.env.MONGO_URI || "mongodb://127.0.0.1:27017/roadwatch";
+    process.env.MONGO_URI || "mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.14.1";
 
 mongoose.connect(MONGO_URI)
     .then(() => console.log("Connected to MongoDB"))
