@@ -9,14 +9,14 @@ export interface StatusChange {
 }
 
 export interface Report {
-    id: string;
-    latitude: number;
-    longitude: number;
-    imageUrl: string;
-    severity: "low" | "medium" | "high";
-    status: "reported" | "verified" | "in_progress" | "repaired" | "rejected";
-    priorityScore: number;
-    confirmationCount: number;
+  id: string;
+  latitude: number;
+  longitude: number;
+  imageUrl: string;
+  severity: "low" | "medium" | "high";
+  status: "reported" | "verified" | "in_progress" | "repaired" | "rejected";
+  priorityScore: number;
+  confirmationCount: number;
 }
 
 // The values chosen in the map filters panel.
