@@ -10,19 +10,13 @@ export interface StatusChange {
 
 export interface Report {
     id: string;
-    imageUrl: string; // empty string means no photo
-    afterImageUrl: string; // repair proof photo, empty string means none yet
-    description: string;
-    address: string;
     latitude: number;
     longitude: number;
-    status: ReportStatus;
-    severity: Severity;
-    aiConfidence: number; // 0 to 1
+    imageUrl: string;
+    severity: "low" | "medium" | "high";
+    status: "reported" | "verified" | "in_progress" | "repaired" | "rejected";
     priorityScore: number;
     confirmationCount: number;
-    createdAt: string;
-    statusHistory: StatusChange[];
 }
 
 // The values chosen in the map filters panel.

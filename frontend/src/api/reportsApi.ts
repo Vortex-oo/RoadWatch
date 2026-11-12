@@ -1,20 +1,25 @@
-import { fakeReports } from "../data/fakeReports";
 import type { Report } from "../types/report";
 
-// Later, replace the body of these functions with real calls to the backend.
-// Leaflet wants [latitude, longitude], but MongoDB stores [longitude, latitude].
-// Do that swap here, once, so the pages only see latitude and longitude.
+const API_URL = "http://localhost:3000";
 
-export async function getReports(): Promise<Report[]> {
-    // Public pages never show rejected reports.
-    return fakeReports.filter((report) => report.status !== "rejected");
+interface ReportsResponse {
+    success: boolean;
+    count: number;
+    reports: Report[];
 }
 
-export async function getReportById(id: string): Promise<Report | undefined> {
-    const report = fakeReports.find((item) => item.id === id);
+export async function getMapReports(): Promise<Report[]> {
+    const response = await fetch(`${API_URL}/reports`);
 
-    if (report && report.status === "rejected") {
-        return undefined;
+    if (!response.ok) {
+        throw new Error(`Failed to fetch reports: ${response.status}`);
     }
-    return report;
+
+    const data: ReportsResponse = await response.json();
+
+    if (!data.success) {
+        throw new Error("Backend could not fetch reports");
+    }
+
+    return data.reports;
 }
