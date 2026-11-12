@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { getReports } from "../api/reportsApi";
+import { getMapReports } from "../api/reportsApi";
 import type { Report } from "../types/report";
 
 export default function HomePage() {
@@ -11,7 +11,7 @@ export default function HomePage() {
     useEffect(() => {
         async function loadReports() {
             try {
-                setReports(await getReports());
+                setReports(await getMapReports());
             } catch {
                 setErrorMessage("Could not load the report counts.");
             } finally {
