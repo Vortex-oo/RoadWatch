@@ -5,6 +5,7 @@ import HomePage from "./pages/HomePage";
 import MapPage from "./pages/MapPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import ReportDetailPage from "./pages/ReportDetailPage";
+import { CreateReportPage, MyReportsPage } from "./modules/citizenApp";
 import { AdminLayout, RequireRole } from "./admin/AdminApp";
 import {
     AdminDashboard,
@@ -27,6 +28,8 @@ export default function App() {
 
                 <Route path="/" element={<HomePage />} />
                 <Route path="/map" element={<MapPage />} />
+                <Route path="/report" element={<CreateReportPage />} />
+                <Route path="/my-reports" element={<MyReportsPage />} />
                 <Route path="/reports/:id" element={<ReportDetailPage />} />
 
                 <Route element={<RequireRole allowedRoles={["admin", "verifier"]} />}>

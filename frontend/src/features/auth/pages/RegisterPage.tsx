@@ -1,33 +1,79 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { AuthLayout } from '../components/AuthLayout';
 import { AuthCard } from '../components/AuthCard';
 import { FormInput } from '../components/FormInput';
 import { PasswordInput } from '../components/PasswordInput';
-import { RoleSelector } from '../components/RoleSelector';
-import type { AuthRole } from '../types/auth.types';
 
 export const RegisterPage = () => {
-  const [role, setRole] = useState<AuthRole>('user');
+  const navigate = useNavigate();
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setError('');
+
+    if (!username.trim() || !password.trim()) {
+      setError('Username and password are required.');
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      const response = await fetch('http://localhost:3000/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username: username.trim(), password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data?.message || 'Registration failed.');
+      }
+
+      localStorage.setItem('token', data?.token || '');
+      navigate('/login');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <AuthLayout>
       <AuthCard title="Create Account">
-        <RoleSelector role={role} setRole={setRole} />
-        
-        <form onSubmit={(e) => e.preventDefault()}>
-          <FormInput label="Full Name" type="text" placeholder="John Doe" />
-          <FormInput label="Email address" type="email" placeholder="you@example.com" />
-          <PasswordInput label="Password" placeholder="Create a strong password" />
-          
-          {role === 'verifier' && (
-            <div className="bg-[#93C5FD] border-[3px] border-black rounded-lg p-3 mb-4 text-xl text-black font-hand">
-              Note: Verifier accounts require approval from a municipality admin.
-            </div>
+        <form onSubmit={handleSubmit}>
+          <FormInput
+            label="Username"
+            type="text"
+            placeholder="john_doe"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
+          <PasswordInput
+            label="Password"
+            placeholder="Create a strong password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+
+          {error && (
+            <p className="mb-4 text-red-600 text-lg font-hand">{error}</p>
           )}
 
-          <button className="w-full mt-2 py-3 bg-[#FDE047] border-[3px] border-black rounded-xl text-2xl text-black hover:-translate-y-1 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all font-hand">
-            Register
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="w-full mt-2 py-3 bg-[#FDE047] border-[3px] border-black rounded-xl text-2xl text-black hover:-translate-y-1 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all font-hand disabled:opacity-60"
+          >
+            {isSubmitting ? 'Registering...' : 'Register'}
           </button>
         </form>
 

@@ -46,7 +46,7 @@ export default function ReportDetailPage() {
         );
     }
 
-    const confidencePercent = Math.round(report.aiConfidence * 100);
+    const confidencePercent = Math.round((report.aiConfidence ?? 0) * 100);
 
     return (
         <div className="mx-auto max-w-4xl px-5 py-8">
@@ -62,7 +62,7 @@ export default function ReportDetailPage() {
                     <PhotoBox imageUrl={report.imageUrl} label="Before photo" height={240} />
                     {/* The "after" photo only exists once the repair is done. */}
                     {report.status === "repaired" && (
-                        <PhotoBox imageUrl={report.afterImageUrl} label="After photo (repaired)" height={240} />
+                        <PhotoBox imageUrl={report.afterImageUrl ?? ""} label="After photo (repaired)" height={240} />
                     )}
                 </div>
 
@@ -75,13 +75,13 @@ export default function ReportDetailPage() {
                     <p>Severity: {severityLabels[report.severity]}</p>
                     <p>Priority score: {report.priorityScore.toFixed(1)}</p>
                     <p>People who reported this spot: {report.confirmationCount}</p>
-                    <p>Reported on: {formatDate(report.createdAt)}</p>
+                    <p>Reported on: {formatDate(report.createdAt ?? new Date().toISOString())}</p>
                     <p>Description: {report.description || "No description given."}</p>
                 </div>
             </div>
 
             <h2 className="mb-3 text-3xl">Status timeline</h2>
-            <StatusTimeline history={report.statusHistory} />
+            <StatusTimeline history={report.statusHistory ?? []} />
         </div>
     );
 }

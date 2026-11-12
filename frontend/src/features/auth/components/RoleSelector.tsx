@@ -13,23 +13,12 @@ export const RoleSelector = ({ role, setRole }: RoleSelectorProps) => {
         type="button"
         onClick={() => setRole('user')}
         className={`flex-1 py-2 border-[3px] border-black rounded-xl text-black transition-all font-hand text-2xl ${
-          role === 'user' 
-            ? 'bg-[#93C5FD] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] -translate-y-1' 
+          role === 'user'
+            ? 'bg-[#93C5FD] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] -translate-y-1'
             : 'bg-white hover:bg-slate-100'
         }`}
       >
         Citizen
-      </button>
-      <button
-        type="button"
-        onClick={() => setRole('verifier')}
-        className={`flex-1 py-2 border-[3px] border-black rounded-xl text-black transition-all font-hand text-2xl ${
-          role === 'verifier' 
-            ? 'bg-[#86EFAC] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] -translate-y-1' 
-            : 'bg-white hover:bg-slate-100'
-        }`}
-      >
-        Verifier
       </button>
     </div>
   );

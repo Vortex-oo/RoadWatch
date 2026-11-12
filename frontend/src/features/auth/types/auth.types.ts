@@ -5,5 +5,5 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
   error?: string;
 }
 
-export type AuthRole = 'user' | 'verifier';
+export type AuthRole = 'user';
 export type ForgotPasswordState = 'request' | 'sent' | 'reset';

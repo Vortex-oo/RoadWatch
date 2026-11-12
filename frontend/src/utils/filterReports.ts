@@ -13,7 +13,7 @@ export function filterReports(reports: Report[], filters: ReportFilters): Report
 
         // The first 10 characters of an ISO date are "YYYY-MM-DD",
         // so plain text comparison works for dates.
-        const reportDate = report.createdAt.slice(0, 10);
+        const reportDate = report.createdAt?.slice(0, 10) ?? "";
 
         if (filters.fromDate && reportDate < filters.fromDate) {
             return false;

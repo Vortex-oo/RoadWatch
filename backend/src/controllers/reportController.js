@@ -116,24 +116,31 @@ exports.createReport = async (req, res) => {
 
 exports.getMyReports = async (req, res) => {
   try {
-    // Removed the { author: req.user.id } filter to fetch all reports
     const reports = await Report.find({}).sort({ createdAt: -1 });
 
-    // Transform the MongoDB documents into the frontend's exact expected format
-    const formattedReports = reports.map(report => {
-      // Calculate the same dummy priority score
+    const validReports = reports.filter(report => {
+      const coords = report?.location?.coordinates;
+      return Array.isArray(coords)
+        && coords.length === 2
+        && Number.isFinite(coords[0])
+        && Number.isFinite(coords[1]);
+    });
+
+    const formattedReports = validReports.map(report => {
       const severityMultiplier = report.severity === 'high' ? 3 : report.severity === 'medium' ? 2 : 1;
       const priorityScore = (severityMultiplier * 2) + (report.votes * 0.5);
 
       return {
         id: report._id.toString(),
-        latitude: report.location.coordinates[1], // Extract lat from GeoJSON
-        longitude: report.location.coordinates[0], // Extract lng from GeoJSON
+        latitude: report.location.coordinates[1],
+        longitude: report.location.coordinates[0],
         imageUrl: report.photo || "",
         severity: report.severity,
-        status: report.status === 'pending' ? 'reported' : report.status, 
+        status: report.status === 'pending' ? 'reported' : report.status,
         priorityScore: Number(priorityScore.toFixed(1)),
-        confirmationCount: report.votes
+        confirmationCount: report.votes,
+        description: report.description || "",
+        createdAt: report.createdAt,
       };
     });
 
@@ -143,10 +150,10 @@ exports.getMyReports = async (req, res) => {
       reports: formattedReports
     });
   } catch (error) {
-    res.status(500).json({ 
-      success: false, 
-      message: 'Error fetching reports', 
-      error: error.message 
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching reports',
+      error: error.message
     });
   }
 };
