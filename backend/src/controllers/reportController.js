@@ -1,3 +1,5 @@
+const { uploadImage } = require("../services/imageService");
+
 const Report = require('../models/Report');
 
 exports.getReports = async (req, res) => {
@@ -7,21 +9,20 @@ exports.getReports = async (req, res) => {
 
     if (status) query.status = status;
     if (severity) query.severity = severity;
-    
+
     if (from || to) {
       query.createdAt = {};
       if (from) query.createdAt.$gte = new Date(from);
       if (to) query.createdAt.$lte = new Date(to);
     }
 
-    // bounds format expected: sw_lng,sw_lat,ne_lng,ne_lat (SouthWest to NorthEast)
     if (bounds) {
       const [swLng, swLat, neLng, neLat] = bounds.split(',').map(Number);
       query.location = {
         $geoWithin: {
           $box: [
-            [swLng, swLat], // Bottom left
-            [neLng, neLat]  // Top right
+            [swLng, swLat],
+            [neLng, neLat]
           ]
         }
       };
@@ -53,66 +54,100 @@ exports.getStats = async (req, res) => {
     const totalReports = await Report.countDocuments();
     const resolvedReports = await Report.countDocuments({ status: 'resolved' });
     const pendingReports = await Report.countDocuments({ status: 'pending' });
-    
+
     res.status(200).json({ totalReports, resolvedReports, pendingReports });
   } catch (error) {
     res.status(500).json({ message: 'Error fetching stats' });
   }
 };
 
+
 exports.createReport = async (req, res) => {
-  try {
-    const { description, photo, latitude, longitude, severity } = req.body;
+    try {
+        const { description, latitude, longitude, severity } = req.body;
 
-    // 1. Check if a report already exists within 10 meters of these coordinates
-    const existingReport = await Report.findOne({
-      location: {
-        $near: {
-          $geometry: { type: 'Point', coordinates: [longitude, latitude] },
-          $maxDistance: 10 // Adjust this radius in meters if needed
+        if (!req.file) {
+            return res.status(400).json({
+                message: "Please upload a pothole image",
+            });
         }
-      }
-    });
 
-    if (existingReport) {
-      // 2. Prevent the exact same user from boosting the vote count infinitely
-      if (existingReport.confirmations.includes(req.user.id)) {
-        return res.status(400).json({ 
-          message: 'You have already reported or voted for this issue.' 
+        if (
+            !Number.isFinite(Number(latitude)) ||
+            !Number.isFinite(Number(longitude))
+        ) {
+            return res.status(400).json({
+                message: "Valid latitude and longitude are required",
+            });
+        }
+
+        // Upload image to Cloudinary
+        const uploadedImage = await uploadImage(req.file.buffer);
+
+        // Find nearby existing report
+        const existingReport = await Report.findOne({
+            location: {
+                $near: {
+                    $geometry: {
+                        type: "Point",
+                        coordinates: [Number(longitude), Number(latitude)],
+                    },
+                    $maxDistance: 10,
+                },
+            },
         });
-      }
 
-      // 3. Increase the vote count and save the user's ID
-      existingReport.votes += 1;
-      existingReport.confirmations.push(req.user.id);
-      
-      await existingReport.save();
-      
-      return res.status(200).json({ 
-        message: 'Similar report found nearby. Vote increased instead of creating a duplicate.', 
-        report: existingReport 
-      });
+        if (existingReport) {
+            if (existingReport.confirmations.includes(req.user.id)) {
+                return res.status(400).json({
+                    message: "You have already reported or voted for this issue.",
+                });
+            }
+
+            existingReport.votes += 1;
+            existingReport.confirmations.push(req.user.id);
+
+            await existingReport.save();
+
+            return res.status(200).json({
+                message: "Similar report found. Vote increased.",
+                report: existingReport,
+            });
+        }
+
+        const report = new Report({
+            description,
+            photo: uploadedImage.secure_url,
+            severity,
+            location: {
+                type: "Point",
+                coordinates: [
+                    Number(longitude),
+                    Number(latitude),
+                ],
+            },
+            author: req.user.id,
+            confirmations: [req.user.id],
+            votes: 1,
+        });
+
+        await report.save();
+
+        res.status(201).json({
+            message: "Report created successfully",
+            report,
+        });
+
+    } catch (error) {
+        console.error("Report creation error:", error);
+
+        res.status(500).json({
+            message: "Error creating report",
+            error: error.message,
+        });
     }
-
-    // 4. If no report is found, run your original creation logic
-    const report = new Report({
-      description,
-      photo,
-      severity,
-      location: {
-        type: 'Point',
-        coordinates: [longitude, latitude] // GeoJSON is strictly [lng, lat]
-      },
-      author: req.user.id, // Pulled from the verifyToken middleware
-      confirmations: [req.user.id] // Automatically add the creator so they can't vote again later
-    });
-
-    await report.save();
-    res.status(201).json({ message: 'Report created successfully', report });
-  } catch (error) {
-    res.status(500).json({ message: 'Error creating report', error: error.message });
-  }
 };
+
 
 exports.getMyReports = async (req, res) => {
   try {
@@ -134,12 +169,12 @@ exports.getMyReports = async (req, res) => {
         id: report._id.toString(),
         latitude: report.location.coordinates[1],
         longitude: report.location.coordinates[0],
-        imageUrl: report.photo || "",
+        imageUrl: report.photo || '',
         severity: report.severity,
         status: report.status === 'pending' ? 'reported' : report.status,
         priorityScore: Number(priorityScore.toFixed(1)),
         confirmationCount: report.votes,
-        description: report.description || "",
+        description: report.description || '',
         createdAt: report.createdAt,
       };
     });
@@ -160,7 +195,7 @@ exports.getMyReports = async (req, res) => {
 
 exports.getNearbyReports = async (req, res) => {
   try {
-    const { latitude, longitude, maxDistance = 500 } = req.query; // maxDistance in meters
+    const { latitude, longitude, maxDistance = 500 } = req.query;
 
     if (!latitude || !longitude) {
       return res.status(400).json({ message: 'Latitude and longitude are required' });
@@ -183,7 +218,6 @@ exports.getNearbyReports = async (req, res) => {
 
 exports.confirmReport = async (req, res) => {
   try {
-    // $addToSet ensures the user ID is only added once (preventing multiple upvotes from one user)
     const report = await Report.findByIdAndUpdate(
       req.params.id,
       { $addToSet: { confirmations: req.user.id } },

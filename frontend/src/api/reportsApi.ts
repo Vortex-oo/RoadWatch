@@ -1,69 +1,82 @@
+
 import type { Report } from "../types/report";
 
-const API_URL = "http://localhost:3000";
+const API_URL =
+    import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 interface ReportsResponse {
-  success: boolean;
-  count: number;
-  reports: Report[];
+    success: boolean;
+    count: number;
+    reports: Report[];
 }
 
+interface CreateReportPayload {
+    description: string;
+    photo: File;
+    latitude: number;
+    longitude: number;
+    severity?: "low" | "medium" | "high";
+}
+
+// GET all potholes for the map
 export async function getMapReports(): Promise<Report[]> {
-  const response = await fetch(`${API_URL}/reports`);
+    const response = await fetch(`${API_URL}/reports`);
 
-  if (!response.ok) {
-    throw new Error(`Failed to fetch reports: ${response.status}`);
-  }
+    if (!response.ok) {
+        throw new Error(`Failed to fetch reports: ${response.status}`);
+    }
 
-  const data: ReportsResponse = await response.json();
+    const data: ReportsResponse = await response.json();
 
-  if (!data.success) {
-    throw new Error("Backend could not fetch reports");
-  }
+    if (!data.success) {
+        throw new Error("Backend could not fetch reports");
+    }
 
-  return data.reports;
+    return data.reports;
 }
 
+// GET a single pothole report
 export async function getReportById(id: string): Promise<Report> {
-  const response = await fetch(`${API_URL}/reports/${id}`);
+    const response = await fetch(`${API_URL}/reports/${id}`);
 
-  if (!response.ok) {
-    throw new Error(`Failed to fetch report: ${response.status}`);
-  }
+    if (!response.ok) {
+        throw new Error(`Failed to fetch report: ${response.status}`);
+    }
 
-  const data = await response.json();
-  return data;
+    return response.json();
 }
 
-export async function createReport(payload: {
-  description: string;
-  photo?: string;
-  latitude: number;
-  longitude: number;
-  severity?: string;
-}) {
-  const token = localStorage.getItem("token");
+// POST a new pothole report with an image
+export async function createReport(
+    payload: CreateReportPayload
+) {
+    const token = localStorage.getItem("token");
 
-  const response = await fetch(`${API_URL}/reports`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    body: JSON.stringify({
-      description: payload.description,
-      photo: payload.photo || "",
-      latitude: payload.latitude,
-      longitude: payload.longitude,
-      severity: payload.severity || "medium",
-    }),
-  });
+    if (!token) {
+        throw new Error("Please log in before submitting a report.");
+    }
 
-  const data = await response.json().catch(() => ({}));
+    const formData = new FormData();
 
-  if (!response.ok) {
-    throw new Error(data?.message || "Failed to create report.");
-  }
+    formData.append("description", payload.description);
+    formData.append("photo", payload.photo);
+    formData.append("latitude", String(payload.latitude));
+    formData.append("longitude", String(payload.longitude));
+    formData.append("severity", payload.severity || "medium");
 
-  return data;
+    const response = await fetch(`${API_URL}/reports`, {
+        method: "POST",
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+    });
+
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+        throw new Error(data.message || "Failed to create report.");
+    }
+
+    return data;
 }
